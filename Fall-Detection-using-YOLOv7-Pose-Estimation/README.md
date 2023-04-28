@@ -1,4 +1,3 @@
-# Fall-Detection-Based-on-Key-Points-of-Human-Skeleton-using-YOLOv7
 
 ## Run fall detection system in CLI
 
