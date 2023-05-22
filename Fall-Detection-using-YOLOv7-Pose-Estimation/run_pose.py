@@ -13,13 +13,13 @@ from PIL import Image, ImageDraw
 import telepot
 import os
 
-token = '5874824687:AAFcoH_7pxY_cQ2d87WuyMkidwrwJ1BhDx0'#'5488308920:AAHmY9R_zUwvolCq906cHdfjfgJ4eDPPymo'
-receiver_id = '1646471129'#'-1001854852651'
+token = 'xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' #enter your telegram bot token
+receiver_id = 'xxxxxxxx' #enter your reciver id 
+
 bot = telepot.Bot(token)
 
 @torch.no_grad()
 def run(poseweights= 'yolov7-w6-pose.pt', source='Human_Fall_Detection_Sample.mp4', device='cpu'):
-
     path = source
     #ext = path.split('/')[-1].split('.')[-1].strip().lower()
     #if ext in ["mp4", "webm", "avi"] or ext not in ["mp4", "webm", "avi"] and ext.isnumeric():
@@ -29,8 +29,12 @@ def run(poseweights= 'yolov7-w6-pose.pt', source='Human_Fall_Detection_Sample.mp
         half = device.type != 'cpu'
         model = attempt_load(poseweights, map_location=device)
         _ = model.eval()
+        
+        #DROID CAM
+        cap = cv2.VideoCapture(input_path) 
+        ####
 
-        cap = cv2.VideoCapture(input_path)
+        #cap = cv2.VideoCapture(input_path)
 
         if (cap.isOpened() == False):
             print('Error while trying to read video. Please check path again')
@@ -111,7 +115,7 @@ def run(poseweights= 'yolov7-w6-pose.pt', source='Human_Fall_Detection_Sample.mp
                         time_now = 0
                     if (time_start_falling != 0):
                         time_now = time.time()
-                        if (time_now - time_start_falling) > 1: # > time in seconds
+                        if (time_now - time_start_falling) > 1.5: # > time in seconds
                             bot.sendMessage(receiver_id, "Person Fall Detected")                    
                             filename = r"falled_img\savedImage.jpg"
                             cv2.imwrite(filename, img)
@@ -124,7 +128,7 @@ def run(poseweights= 'yolov7-w6-pose.pt', source='Human_Fall_Detection_Sample.mp
                     img_, (960, 540), interpolation=cv2.INTER_LINEAR)
                 cv2.imshow("Detection", img_)
                 key = cv2.waitKey(1)
-                if key == ord('c'):
+                if key == ord('q'):
                     break
 
                 end_time = time.time()
@@ -139,12 +143,13 @@ def run(poseweights= 'yolov7-w6-pose.pt', source='Human_Fall_Detection_Sample.mp
         cap.release()
         avg_fps = total_fps / frame_count
         print(f"Average FPS: {avg_fps:.3f}")
+        
 
 
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--poseweights', nargs='+', type=str, default='yolov7-w6-pose.pt', help='model path(s)')
-    parser.add_argument('--source', type=str,default= '0', help='path to video or 0 for webcam')
+    parser.add_argument('--source', type=str, default='0', help='path to video or 0 for webcam')
     parser.add_argument('--device', type=str, default='0', help='cpu/0,1,2,3(gpu)')
     opt = parser.parse_args()
     return opt
