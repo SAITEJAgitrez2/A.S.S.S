@@ -1,8 +1,3 @@
-
-## Run fall detection system in CLI
-
-cd .\pose-estimation-yolov7\
-
 ### Run with webcam, cpu
 python run_pose.py --source 0 
 
