@@ -9,3 +9,4 @@ Before following the following steps make sure the host system meets the hardwar
 3) Install an IDE (Visual Studio code/ PyCharm)
 4) Install specified python modules in requirement.txt files
 
+cnage the modules file paths in app.py 
