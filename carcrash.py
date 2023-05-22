@@ -9,14 +9,22 @@ import telepot
 import math
 
 
-token = '5874824687:AAFcoH_7pxY_cQ2d87WuyMkidwrwJ1BhDx0'
-receiver_id = '1646471129'
+token = 'xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' #enter your telegram bot token
+receiver_id = 'xxxxxxxx' #enter your reciver id 
 bot = telepot.Bot(token)
+
+def telegram(img):
+    bot.sendMessage(receiver_id, "car crash Detected at location:\n location of installed camera")  
+    filename = r"D:/v8/pythonprj/yolov8/runyolo/crash_img/savedImg.jpg"
+    cv2.imwrite(filename, img)
+    bot.sendPhoto(receiver_id, photo=open(filename, 'rb'))
+    os.remove(filename)
+    return None
 
 parser = argparse.ArgumentParser(description='Car crash detection using yoloV8')
 
 # add optional argument
-parser.add_argument('--source', type=str, help='input file path')
+parser.add_argument('--source', type=str, default="D:/v8/pythonprj/yolov8/runyolo/videos/videoplayback.mp4", help='input file path')
 #parser.add_argument('--output', type=str, help='output file path')
 
 args = parser.parse_args()
@@ -37,9 +45,12 @@ vw, vh = int(cap.get(3)), int(cap.get(4))
 cap.set(3,vw)
 cap.set(4,vh)
 
+loop_count = 0
+max_count = 8
+
 #cap = cv2.VideoCapture("./videos/videoplayback.mp4")
 #frame_width, frame_height = int(cap.get(3)), int(cap.get(4))
-model = YOLO('./Yolo-Weights/yolov8m.pt')
+model = YOLO("D:/v8/pythonprj/yolov8/runyolo/Yolo-Weights/yolov8m.pt")
 
 #list of class names
 classNames = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
@@ -55,6 +66,7 @@ classNames = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'trai
 tracker = Sort(max_age=1, min_hits=2,iou_threshold=0.3)
 codec = cv2.VideoWriter_fourcc(*"MJPG")
 out = cv2.VideoWriter('./results_crash/crash_processed.avi' , codec, 24, (vw, vh))
+counter=0
 while True:
     cen=dict()
     success, img = cap.read()
@@ -120,12 +132,21 @@ while True:
                 if id2 not in vehicle_red_zone_list:
                     vehicle_red_zone_list.append(id2)  # Same for the second id
                     vehicle_red_line_list.append(p2[0:2])
+        
         for idx, box in cen.items():  # dict (1(key):red(value), 2 blue)  idx - key  box - value
-            if idx in vehicle_red_zone_list:  # if id is in red zone list
-                cv2.rectangle(img, (box[2], box[3]), (box[4], box[5]), (0, 0, 255),2)  # Create Red bounding boxes  #starting point, ending point size of 2
-
+            if idx not in vehicle_red_zone_list:  # if id is in red zone list
+                #cv2.rectangle(img, (box[2], box[3]), (box[4], box[5]), (0, 0, 255),2)  # Create Red bounding boxes  #starting point, ending point size of 2
+                pass   
+                    
                 #cvzone.cornerRect(img, (x1, y1, w, h), l=10, t=4, colorR=(0, 0, 255), colorC=(0, 0, 255))
-            #else:
+            elif idx in vehicle_red_zone_list:
+                cv2.rectangle(img, (box[2], box[3]), (box[4], box[5]), (0, 0, 255),2)
+                counter+=1
+                if counter==18:
+                    telegram(img)
+                    counter=0
+                
+            
                 #cv2.rectangle(img, (box[2], box[3]), (box[4], box[5]), (0, 255, 0), 1)  # Create Green bounding boxes
                 #cvzone.cornerRect(img, (x1, y1, w, h), l=10, t=2, colorR=(0, 255, 0), colorC=(0, 0, 0))
                 #time_start_falling = 0
@@ -136,6 +157,7 @@ while True:
     key = cv2.waitKey(1)
     if key == ord('q'):
         break
+exit(0)
 
 #model = YOLO('../Yolo-Weights/yolov8m.pt')
 #results = model("images/bus.jpg", show=True)
